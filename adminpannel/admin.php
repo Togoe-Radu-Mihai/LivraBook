@@ -104,6 +104,7 @@ if (isset($_POST["editproducts"])) {
     $PRICE = $_POST["PRICE"];
     $DESCRIPTION = $_POST["DESCRIPTION"];
     $CATEGORY = $_POST["CATEGORY"];
+    $STOCK = $_POST["STOC"];
 
 
     $uploadDirectory = "../book_images/";  // Specify the directory where you want to store the uploaded images
@@ -121,11 +122,12 @@ if (isset($_POST["editproducts"])) {
     $PRICE = $_POST["PRICE"];
     $DESCRIPTION = $_POST["DESCRIPTION"];
     $CATEGORY = $_POST["CATEGORY"];
+    $STOCK = $_POST["STOC"];
     $prd = $_GET['prd'];
-    $sql = "UPDATE PRODUCTS SET TITLE=?, AUTHOR=?, RELEASE_YEAR=?, PRICE=?, DESCRIPTION=?, CATEGORY=? WHERE PRODUCT_ID=?";
+    $sql = "UPDATE PRODUCTS SET TITLE=?, AUTHOR=?, RELEASE_YEAR=?, PRICE=?, STOC = ?, DESCRIPTION=?, CATEGORY=? WHERE PRODUCT_ID=?";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssi", $TITLE, $AUTHOR, $RELEASE_YEAR, $PRICE, $DESCRIPTION, $CATEGORY, $prd);
+    $stmt->bind_param("sssssssi", $TITLE, $AUTHOR, $RELEASE_YEAR, $PRICE, $STOCK, $DESCRIPTION, $CATEGORY, $prd);
 
     if ($stmt->execute()) {
         echo "Update successful";
@@ -148,6 +150,7 @@ if (isset($_POST["addprd"])) {
     $PUBLISHER = $_POST["publisher"];
     $DESCRIPTION = $_POST["description"];
     $CATEGORY = $_POST["category"];
+    $STOCK = $_POST["stoc"];
     $uploadedFileName = "book_images/";
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["product_image"])) {
         $uploadedFile = $_FILES["product_image"];
@@ -155,8 +158,8 @@ if (isset($_POST["addprd"])) {
        
 
     }
-    $sql = "INSERT INTO PRODUCTS(PRODUCT_IMAGE, TITLE, AUTHOR, RELEASE_YEAR, PRICE, DESCRIPTION, CATEGORY, PUBLISHER) 
-    VALUES ('$uploadedFileName', '$TITLE', '$AUTHOR', '$RELEASE_YEAR', '$PRICE', '$DESCRIPTION', '$CATEGORY', '$PUBLISHER')";
+    $sql = "INSERT INTO PRODUCTS(PRODUCT_IMAGE, TITLE, AUTHOR, RELEASE_YEAR, PRICE, DESCRIPTION, CATEGORY, PUBLISHER, STOC) 
+    VALUES ('$uploadedFileName', '$TITLE', '$AUTHOR', '$RELEASE_YEAR', '$PRICE', '$DESCRIPTION', '$CATEGORY', '$PUBLISHER', '$STOCK')";
    mysqli_query($conn, $sql);
 
 
@@ -240,6 +243,9 @@ if (isset($_POST["addprd"])) {
                 <label for="category" class="form-label">Category:</label>
                 <input type="text" id="category" name="category" class="form-input" required>
 
+                <label for="stoc" class="form-label">Stock:</label>
+                <input type="number" id="stoc" name="stoc" class="form-input" required>
+
                 <label for="product_image" class="form-label">Product Image:</label>
                 <input type="file" id="product_image" name="product_image" accept="image/*" class="form-input" required>
 
@@ -266,6 +272,7 @@ if (isset($_POST["addprd"])) {
                         <th> Release Year </th>
                         <th> Category </th>
                         <th> Description </th>
+                        <th> Stock </th>
                         <th> Save Changes </th>
                         <th> Delete Product </th>
                     </tr>
@@ -318,6 +325,10 @@ if (isset($_POST["addprd"])) {
                                 </td>
                                 <td>
                                     <input type="text" name="DESCRIPTION" value="<?php echo $product['DESCRIPTION'] ?>">
+                                    </input>
+                                </td>
+                                <td>
+                                    <input type="text" name="STOC" value="<?php echo $product['STOC'] ?>">
                                     </input>
                                 </td>
                                 <td>
@@ -430,7 +441,7 @@ if (isset($_POST["addprd"])) {
                 <h1>Total Amount Processed</h1>
                 <!-- Add your PHP code or static value below the h1, on the same line as the image -->
                 <h5>
-                    <?php echo $nr_bani ?>
+                    <?php echo $nr_bani . " lei" ?>
                     <h3>
             </div>
         </div>
