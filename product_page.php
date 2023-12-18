@@ -14,20 +14,44 @@ if (!empty($produse)) {
     echo "Error: Product not found.";
 }
 
-if (isset($_GET['productID'])) {
+if (isset($_GET['PRODUCT_ID']) && isset($_GET['CUMPARA'])) {
+  
     if ($_SESSION['userid'] != '0') {
         $userid = $_SESSION['userid'];
-        $productid = $_GET['productID'];
+        $productid = $_GET['PRODUCT_ID'];
         $completed = 0;
         $date = date("Y-m-d");
         $AAA = $date;
-        $cart_sql = "INSERT INTO cart(USER_ID, PRODUCT_ID, ORDER_DATE, COMPLETED) VALUES('$userid', '$productid', '$date', '$completed')";
-        if (!mysqli_query($conn, $cart_sql))
-            echo 'query error: ' . mysqli_error($conn);
-        else {
-            $success = "Product added successfully";
-            $str = "Location: product_page.php?PRODUCT_ID=" . $_GET['PRODUCT_ID'] . "&success=1";
-            header($str);
+        $q = 1;
+        $sql_q = "SELECT * FROM cart WHERE USER_ID = '$userid' AND COMPLETED = 0";
+        $results = mysqli_fetch_all(mysqli_query($conn, $sql_q), MYSQLI_ASSOC);
+        $ok = 0;
+        foreach ($results as $r) {
+            
+            if ($r['PRODUCT_ID'] == $productid) {
+                $ok = 1;
+                $q = $r['QUANTITY'] + 1;
+                $cartid = $r['CART_ID'];
+                $sql_q = "DELETE FROM CART WHERE CART_ID = '$cartid'";
+                if(!mysqli_query($conn, $sql_q))
+                {
+                    $message = "wrong answer";
+echo "<script type='text/javascript'>alert('$message');</script>";
+                }
+                $cart_sql = "INSERT INTO cart(USER_ID, PRODUCT_ID, ORDER_DATE, QUANTITY, COMPLETED) VALUES('$userid', '$productid', '$date', '$q', '$completed')";
+                mysqli_query($conn, $cart_sql);
+                break;
+            }
+        }
+        if ($ok == 0) {
+            $cart_sql = "INSERT INTO cart(USER_ID, PRODUCT_ID, ORDER_DATE, QUANTITY, COMPLETED) VALUES('$userid', '$productid', '$date', '$q', '$completed')";
+            if (!mysqli_query($conn, $cart_sql))
+                echo 'query error: ' . mysqli_error($conn);
+            else {
+                $success = "Product added successfully";
+                $str = "Location: product_page.php?PRODUCT_ID=" . $_GET['PRODUCT_ID'] . "&success=1";
+                //header($str);
+            }
         }
     }
 }
@@ -49,13 +73,19 @@ function displayUserRatings($conn, $product_id)
         ?>
         <div class="card user-rating mb-3">
             <div class="card-body">
-                <h5 class="card-title">Username: <?php echo $rating['USERNAME']; ?></h5>
-                <p class="card-text"><strong>Rating:</strong> <?php
+                <h5 class="card-title">Username:
+                    <?php echo $rating['USERNAME']; ?>
+                </h5>
+                <p class="card-text"><strong>Rating:</strong>
+                    <?php
                     $i = 0;
-                    for ($i = 0; $i <  $rating['RATING']; $i++)
-                    echo '<img src="..\book_images\star.png" width="10px" height="10px">';
-                ?> </p>
-                <p class="card-text"><strong>Comment:</strong> <?php echo $rating['COMMENT']; ?></p>
+                    for ($i = 0; $i < $rating['RATING']; $i++)
+                        echo '<img src="..\book_images\star.png" width="10px" height="10px">';
+                    ?>
+                </p>
+                <p class="card-text"><strong>Comment:</strong>
+                    <?php echo $rating['COMMENT']; ?>
+                </p>
             </div>
         </div>
         <?php
@@ -219,7 +249,15 @@ function displayUserRatings($conn, $product_id)
         .text-success {
             color: #28a745;
         }
-
+        .ratingsbanner {
+            margin-left: 0;
+            color: white;
+            background-color: #E7473C;
+            height: 50px;
+            width: 100%;
+            padding: 10px;
+        }
+        
         /* Responsive Styling */
         @media (max-width: 768px) {
             .product-container {
@@ -244,9 +282,11 @@ function displayUserRatings($conn, $product_id)
     <div class="container product-container" style="padding-left: 20px; padding-top:20px;">
         <div class="row">
             <div class="col-md-4 product-image">
-                <img src="<?php echo $p['PRODUCT_IMAGE'] ?>" class="img-fluid" alt="Book Cover" data-toggle="modal" data-target="#zoomModal">
+                <img src="<?php echo $p['PRODUCT_IMAGE'] ?>" class="img-fluid" alt="Book Cover" data-toggle="modal"
+                    data-target="#zoomModal">
                 <!-- Zoom Modal -->
-                <div class="modal fade" id="zoomModal" tabindex="-1" role="dialog" aria-labelledby="zoomModalLabel" aria-hidden="true">
+                <div class="modal fade" id="zoomModal" tabindex="-1" role="dialog" aria-labelledby="zoomModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-body">
@@ -260,25 +300,43 @@ function displayUserRatings($conn, $product_id)
                 </div>
             </div>
             <div class="col-md-8 product-info">
-                <h2><?php echo $p['TITLE'] ?></h2>
-                <p><strong>Author:</strong> <?php echo $p['AUTHOR'] ?></p>
-                <p><strong>Publisher:</strong> <?php echo $p['PUBLISHER'] ?></p>
-                <p><strong>Release Date:</strong> <?php echo $p['RELEASE_YEAR'] ?></p>
-                <p><strong>Description:</strong><br><?php echo $p['DESCRIPTION'] ?></p>
-                <p><strong>Category:</strong><br><?php echo $p['Category'] ?></p>
-                <p><strong>Price:</strong> <?php echo $p['PRICE'] ?> LEI</p>
-           
-                    <?php if ($p['STOC'] <= '0') 
-                    { echo "<h1 class='text-danger'> PRODUCT OUT OF STOCK </h1>";} else 
-                    {echo " <a href=" . "product_page.php?productID=" . $p['PRODUCT_ID'] . "&PRODUCT_ID=" . $_GET['PRODUCT_ID'] . "<button class='btn btn-primary'>Add to Cart</button>" ."</a>";}
-                    ?>
-                
-                <p class="text-success"><?php echo $message; ?></p>
+                <h2>
+                    <?php echo $p['TITLE'] ?>
+                </h2>
+                <p><strong>Author:</strong>
+                    <?php echo $p['AUTHOR'] ?>
+                </p>
+                <p><strong>Publisher:</strong>
+                    <?php echo $p['PUBLISHER'] ?>
+                </p>
+                <p><strong>Release Date:</strong>
+                    <?php echo $p['RELEASE_YEAR'] ?>
+                </p>
+                <p><strong>Description:</strong><br>
+                    <?php echo $p['DESCRIPTION'] ?>
+                </p>
+                <p><strong>Category:</strong><br>
+                    <?php echo $p['CATEGORY'] ?>
+                </p>
+                <p><strong>Price:</strong>
+                    <?php echo $p['PRICE'] ?> LEI
+                </p>
+
+                <?php if ($p['STOC'] <= '0') {
+                    echo "<h1 class='text-danger'> PRODUCT OUT OF STOCK </h1>";
+                } else {
+                    echo "<a href='product_page.php?PRODUCT_ID={$p['PRODUCT_ID']}&PRODUCT_ID={$_GET['PRODUCT_ID']}&CUMPARA=1'><button class='btn btn-primary'>Add to Cart</button></a>";
+                }
+                ?>
+
+                <p class="text-success">
+                    <?php echo $message; ?>
+                </p>
             </div>
         </div>
 
         <!-- Add Review Form -->
-        <?php if ($_SESSION['userid'] != '0') : ?>
+        <?php if ($_SESSION['userid'] != '0'): ?>
             <div class="add-review-form">
                 <h3>Add Your Review</h3>
                 <form action="add_review.php" method="post">
@@ -298,7 +356,9 @@ function displayUserRatings($conn, $product_id)
 
         <!-- Ratings Section -->
         <div class="ratings-section">
+            <div class="ratingsbanner">
             <h3>User Ratings</h3>
+            </div>
             <?php displayUserRatings($conn, $product_id); ?>
         </div>
     </div>

@@ -1,0 +1,306 @@
+body {
+    background-color: #DDD0C8;
+}
+
+#sidebar {
+    font-family: 'Arial', sans-serif;
+    background-color: #E7473C;
+    text-align: center;
+    height: 100vh;
+    width: 30vh;
+    color: #ffffff;
+}
+
+#sidebar a {
+    color: #ffffff;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#sidebar a:hover {
+    background-color: #FF6659;
+    color: #ffffff;
+}
+
+#sidebar h3 {
+    padding: 20px;
+    color: #ffffff;
+}
+
+#content {
+    margin-left: 250px;
+    padding: 20px;
+}
+
+.sidebar-header {
+    padding: 20px;
+}
+
+.list-unstyled {
+    padding: 10px;
+}
+
+.list-unstyled li {
+    padding: 10px;
+}
+
+.performance-indicator {
+    border-radius: 15px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 800px;
+    height: 175px;
+}
+
+.performance-indicator img {
+    margin-left: 50px;
+    margin-right: 50px;
+    width: 100px;
+    height: 100px;
+    /* Adjust as needed */
+}
+
+.indicator-content h1 {
+    margin: 0;
+    /* Remove default margin for h1 */
+}
+
+.indicator-content p {
+    margin: 0;
+    /* Remove default margin for p */
+}
+
+#conturi {
+    position: absolute;
+    right: 50vh;
+    top: 2vh;
+}
+
+#produse {
+    position: absolute;
+    right: 50vh;
+    top: 27vh;
+}
+
+#bani {
+    position: absolute;
+    right: 50vh;
+    top: 52vh;
+}
+
+#recenzii {
+    position: absolute;
+    right: 50vh;
+    top: 77vh;
+}
+
+.accounttable {
+    position: absolute;
+    left: 0vh;
+    top: 5vh;
+    width: 200vh;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.accounttable table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+}
+
+.accounttable thead th {
+    background-color: #FF6659;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 10px;
+    text-align: middle;
+}
+
+.accounttable tbody tr {
+    transition: background-color 0.3s;
+    background-color: #ffffff;
+}
+
+.accounttable tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.accounttable td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.submitbtn {
+    width: 100px;
+    border: none;
+    border-radius: 15px;
+    color: #ffffff;
+    background-color: #FF6659;
+}
+
+#productimage {
+    display: inline;
+    padding: 70px;
+}
+
+.producttable {
+    position: absolute;
+    left: 35vh;
+    top: 5vh;
+    width: 100%;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.producttable table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+}
+
+.producttable thead th {
+    background-color: #FF6659;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 10px;
+    text-align: middle;
+}
+
+.producttable tbody tr {
+    transition: background-color 0.3s;
+    background-color: #ffffff;
+}
+
+.producttable tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.producttable td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.addproduct {
+    position: absolute;
+    top: 0vh;
+    left: 10vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 0vh;
+    width: 100%;
+}
+
+#productForm {
+    width: 50%;
+    margin: auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+.form-input,
+.form-button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-input {
+    resize: vertical;
+}
+
+.form-button {
+    background-color: #E7473C;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-button:hover {
+    background-color: #FF6659;
+}
+
+.search-form {
+    position: absolute;
+    top: 1vh;
+    left: 35vh;
+    display: flex;
+    align-items: center;
+    z-index: 1;
+    /* Ensure the search bar is above other elements */
+}
+
+.search-form label {
+    margin-right: 10px;
+    color: #555;
+}
+
+.search-form input {
+    width: 80%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.search-form button {
+    background-color: #E7473C;
+    color: #fff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-form button:hover {
+    background-color: #FF6659;
+    ;
+}
+
+.delete {
+    padding: 17px 40px;
+    border-radius: 10px;
+    border: 0;
+    background-color: rgb(255, 56, 86);
+    letter-spacing: 1.5px;
+    font-size: 15px;
+    transition: all .3s ease;
+    box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+    color: hsl(0, 0%, 100%);
+}
+
+.delete:hover {
+    box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+}
+
+.delete:active {
+    background-color: rgb(255, 56, 86);
+    /*50, 168, 80*/
+    box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+    transform: translateY(5px);
+    transition: 200ms;
+}

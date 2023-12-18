@@ -1,11 +1,17 @@
 <?php
 include '..\Config\connect.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require '../phpmailer/src/Exception.php';
+require '../phpmailer/src/PHPMailer.php';
+require '../phpmailer/src/SMTP.php';
+
+$cookie = $_COOKIE['total'];
+$_SESSION['total'] = $cookie;
+
 if (isset($_SESSION['userid'])) {
-    $user_id = $_SESSION['userid'];
-    $sql = "SELECT * FROM cart WHERE USER_ID = '$user_id' & COMPLETED='0'";
-    $result = mysqli_query($conn, $sql);
-    $carts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     $deleted_cart = 0;
     if (isset($_GET['deleteID'])) {
@@ -17,14 +23,47 @@ if (isset($_SESSION['userid'])) {
         else
             echo "noob";
     }
+    $user_id = $_SESSION['userid'];
+    $sql = "SELECT * FROM cart WHERE USER_ID = '$user_id' & COMPLETED='0'";
+    $result = mysqli_query($conn, $sql);
+    $carts = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    
     if (isset($_GET['checkout'])) {
-        $userid = $_SESSION['userid'];
-        $sql = "DELETE FROM cart WHERE USER_ID = '$userid'";
-        $result = mysqli_query($conn, $sql);
-        if ($result)
-            header('Location:cart.php');
-        else
-            echo "noob";
+        $date = $_SESSION['date'];
+        $price = $_SESSION['total'];
+        $next_date = date('Y-m-d', strtotime($date . ' + 2 days'));
+        $mail = new PHPMailer(true);
+
+        $mail->isSMTP();
+        $mail->Host = "smtp.gmail.com";
+        $mail->SMTPAuth = true;
+        $mail->Username = "livrabook141@gmail.com";
+        $mail->Password = "esfuryltopvyrakk";
+        $mail->SMTPSecure = "ssl";
+        $mail->Port = 465;
+
+        $mail->setFrom("anothernoobanother@gmail.com");
+        $mail->addAddress($_SESSION["email"]);
+        $mail->isHTML(true);
+
+        $mail->Subject = "LivraBook: Your order has been confirmed";
+        $mail->Body = "
+    <div style='background-color: #DDD0C8; padding: 20px; font-family: Arial, sans-serif;'>
+        <h2 style='text-align: center; color: #E7473C;'>Thank you for purchasing from LivraBook</h2>
+        <div style='margin-top: 20px; font-color: black; font-family: Georgia;'>
+            <h3>Order details:</h3>
+            <p><b>Order date:</b> $date</p>
+            <p><b>Expected Shipping Date:</b> $next_date</p>
+            <p><b>Total price:</b> $price</p>
+            <p><b>Customer name:</b> " . $_SESSION['lastname'] . " " . $_SESSION['firstname'] . "</p>
+            <p><b>County/Region:</b> " . $_SESSION['state'] . "</p>
+            <p><b>City:</b> " . $_SESSION['city'] . "</p>
+            <p><b>Zip Code:</b> " . $_SESSION['zipcode'] . "</p>
+            <p><b>Address:</b> " . $_SESSION['adress'] . "</p>
+        </div>
+    </div>";
+        $mail->send();
+
     }
 }
 
@@ -34,12 +73,11 @@ if (isset($_SESSION['userid'])) {
 <head>
     <link href="cart.css" rel="stylesheet">
     <style>
-        .oringi
-        {
+        .oringi {
             background-color: #E7473C;
         }
-        .oringi:hover
-        {
+
+        .oringi:hover {
             background-color: #FF6659;
         }
     </style>
@@ -48,6 +86,11 @@ if (isset($_SESSION['userid'])) {
 <body style="background-color:#DDD0C8">
     <?php include '..\Templates\header.php'; ?>
 
+    <?php
+    if (isset($_GET['checkout'])) { ?>
+        <h1 style="color: #14A44D; text-align: center; margin-top: 10px;"> Your order has been completed! Please check your
+            email for shipping details</h1>
+    <?php } ?>
     <div class="cart-body" style="background-color:#DDD0C8;">
         <div class="container px-3 my-5 clearfix">
             <!-- Shopping cart table -->
@@ -77,10 +120,10 @@ if (isset($_SESSION['userid'])) {
                                 foreach ($carts as $cart)
                                     array_push($id_produse, $cart['PRODUCT_ID']);
                                 $ids = join(',', array_map('intval', $id_produse));
-                                $produs_sql = "SELECT p.*, c.CART_ID
+                                $produs_sql = "SELECT p.*, c.CART_ID, c.QUANTITY
                FROM products p
                JOIN cart c ON p.PRODUCT_ID = c.PRODUCT_ID
-               WHERE p.PRODUCT_ID IN ($ids)";
+               WHERE p.PRODUCT_ID IN ($ids) AND c.COMPLETED = 0";
                                 $r = mysqli_query($conn, $produs_sql);
                                 $produse = mysqli_fetch_all($r, MYSQLI_ASSOC); ?>
                                 <?php foreach ($produse as $produs): ?>
@@ -111,19 +154,20 @@ if (isset($_SESSION['userid'])) {
                                         <td class="text-right font-weight-semibold align-middle p-4 productPrice">
                                             <?php echo $produs['PRICE']; ?>
                                         </td>
+                                        
                                         <td class="align-middle p-4">
-                                            <input type="number" class="form-control text-center quantityInput" value="1"
-                                                data-product-id="<?php echo $produs['PRODUCT_ID']; ?>">
+                                        <input type="number" class="form-control text-center quantityInput" value="<?php echo intval($produs['QUANTITY']); ?>"
+    data-product-id="<?php echo $produs['PRODUCT_ID']; ?>">
                                         </td>
                                         <td class="text-right font-weight-semibold align-middle p-4 productTotal">
-                                            <?php echo $produs['PRICE']; ?>
+                                            <?php echo ($produs['PRICE']) * intval($produs['QUANTITY']) . ".00 lei"; ?>
                                         </td>
                                         <td class="text-center align-middle px-0">
                                             <a href=<?php echo "cart.php?deleteID=" . $produs['CART_ID']; ?>
                                                 class="shop-tooltip close float-none text-danger" title=""
                                                 data-original-title="Remove">
                                                 <button class="rmvButton">
-                                                     DELETE
+                                                    DELETE
                                                 </button>
                                             </a>
                                         </td>
@@ -141,7 +185,8 @@ if (isset($_SESSION['userid'])) {
                                 <div class="mt-4" style="width: 30%">
                                     <label for="coupon" class="text-muted font-weight-normal">Coupon Code</label>
                                     <input type="text" id="coupon" placeholder="ABC" class="form-control">
-                                    <button id="checkCouponBtn" class="btn btn-primary oringi" style="background-color:#E7473C; border: none;">Check Coupon</button>
+                                    <button id="checkCouponBtn" class="btn btn-primary oringi"
+                                        style="background-color:#E7473C; border: none;">Check Coupon</button>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -170,7 +215,8 @@ if (isset($_SESSION['userid'])) {
                 <div class="float-right">
                     <button type="button" class="btn btn-lg btn-default md-btn-flat mt-2 mr-3">Back to
                         shopping</button>
-                    <a href="checkout.php"> <button type="button" class="oringi btn btn-lg btn-primary mt-2" style="background-color:#E7473C; border: none;">Checkout</button> </a>
+                    <a href="checkout.php"> <button type="button" class="oringi btn btn-lg btn-primary mt-2"
+                            style="background-color:#E7473C; border: none;">Checkout</button> </a>
                 </div>
             </div>
         </div>
@@ -205,7 +251,7 @@ if (isset($_SESSION['userid'])) {
                     discountPercentage = 20;
                 else if (couponCode == "PROMO30")
                     discountPercentage = 30;
-                 else {
+                else {
                     discountPercentage = 0;
                 }
 
@@ -240,6 +286,9 @@ if (isset($_SESSION['userid'])) {
             }
 
             function updateTotalCart(total) {
+
+                document.cookie = "total=" + total;
+
                 var x = document.getElementById("totalCart");
                 var y = document.getElementById("discountValue");
                 x.textContent = total + " lei";
@@ -247,6 +296,7 @@ if (isset($_SESSION['userid'])) {
             }
         });
     </script>
+
 </body>
 
 </html>

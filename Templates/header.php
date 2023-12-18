@@ -49,7 +49,7 @@ if (isset($_GET['logout'])) {
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark text-white" style= "background-color: #E7473C; color: white;">
     <div class="container">
-      <a class="navbar-brand text-white" href="#">LivraBook</a>
+      <a class="navbar-brand text-white" href="../index.php">LivraBook</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -94,6 +94,11 @@ if (isset($_GET['logout'])) {
               <a class="nav-link text-white" href="..\shopping_cart\purchasehistory.php"> Purchase History </a>
             </li>
           <?php } ?>
+          <?php if ($_SESSION['userid'] != '0' && isset($_SESSION['admin']) && $_SESSION['admin'] == 1) { ?>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="../adminpannel/admin.php">Dashboard </a>
+            </li>
+            <?php } ?>
         </ul>
 
       </div>

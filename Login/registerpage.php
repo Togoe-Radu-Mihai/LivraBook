@@ -1,26 +1,64 @@
 <?php
 include '..\Config\connect.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-if (isset($_POST) && isset($_POST['submit']))
-{
-        $email = mysqli_real_escape_string($conn, $_POST['email']);
+require '../phpmailer/src/Exception.php';
+require '../phpmailer/src/PHPMailer.php';
+require '../phpmailer/src/SMTP.php';
+$error = "";
+if (isset($_POST) && isset($_POST['submit'])) {
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+
+    $sql = "SELECT * FROM USERS WHERE EMAIL='$email'";
+    $result = mysqli_fetch_all(mysqli_query($conn, $sql), MYSQLI_ASSOC);
+    if (sizeof($result) > 0) {
+        $error = "There is already an account linked to this email";
+    } else {
         $username = mysqli_real_escape_string($conn, $_POST['username']);
         $password = mysqli_real_escape_string($conn, $_POST['password']);
         $date = mysqli_real_escape_string($conn, $_POST['date']);
         $fullname = mysqli_real_escape_string($conn, $_POST['full_name']);
         $phone = mysqli_real_escape_string($conn, $_POST['phone']);
         // create sql
-        $sql = "INSERT INTO users(username, FULL_NAME, PHONE_NUMBER, PASSWORD, birth_date, email) VALUES('$username', '$fullname', '$phone', '$password', '$date', '$email')";
-        header('Location:..\index.php');
+        $sql = "INSERT INTO PENDING_USERS(USERNAME, FULL_NAME, PHONE_NUMBER, PASSWORD, birth_date, email) VALUES('$username', '$fullname', '$phone', '$password', '$date', '$email')";
         // save to db and check
-        if(mysqli_query($conn, $sql)){
-            // success
-            
-            header('Location:..\index.php');
+        if (mysqli_query($conn, $sql)) {
+            $mail = new PHPMailer(true);
+
+            $mail->isSMTP();
+            $mail->Host = "smtp.gmail.com";
+            $mail->SMTPAuth = true;
+            $mail->Username = "livrabook141@gmail.com";
+            $mail->Password = "esfuryltopvyrakk";
+            $mail->SMTPSecure = "ssl";
+            $mail->Port = 465;
+
+            $mail->setFrom("livrabook141@gmail.com");
+            $mail->addAddress($_POST["email"]);
+            $mail->isHTML(true);
+
+            $mail->Subject = "Welcome to LivraBook BookStore!";
+            $mail->Body = "<h3>You have created a new account. Please verify your email address in order to access your account</h3>" .
+                "<a href='localhost/Login/confirmare.php?email=$email'><button style='
+            outline: 0;
+            border: none;
+            cursor: pointer;
+            padding: 0 24px;
+            border-radius: 50px;
+            min-width: 200px;
+            height: 50px;
+            font-size: 18px;
+            background-color: #E7473C;
+            font-weight: 500;
+            color: white;'>Verify Email</button></a>";
+            $mail->send();
+            header("Location:validare.php");
         } else {
-            echo 'query error: '. mysqli_error($conn);
+            echo 'query error: ' . mysqli_error($conn);
         }
- 
+    }
+
 } ?>
 
 <!DOCTYPE html>
@@ -69,7 +107,9 @@ if (isset($_POST) && isset($_POST['submit']))
     <div class="limiter">
         <div class="container-login100">
             <div class="wrap-login100">
+               
                 <form class="login100-form validate-form" action="\Login\registerpage.php" method="POST">
+                <h3 class=" p-b-43 text-danger"> <?php echo $error ?> </h1>
                     <span class="login100-form-title p-b-43">
                         Register a new account
                     </span>
@@ -108,15 +148,16 @@ if (isset($_POST) && isset($_POST['submit']))
                         <span class="label-input100">Confirm Password</span>
                     </div>
                     <div class="wrap-input100 validate-input" data-validate="You must introduce your birth date">
-        <input class="input100" id="birthDate" type="text" name="date" placeholder="Date" onfocus="(this.type='date')" onblur="(this.type='text')" onchange="clearPlaceholder(this)">
-        <span class="focus-input100"></span>
-    </div>
+                        <input class="input100" id="birthDate" type="text" name="date" placeholder="Date"
+                            onfocus="(this.type='date')" onblur="(this.type='text')" onchange="clearPlaceholder(this)">
+                        <span class="focus-input100"></span>
+                    </div>
 
-    <script>
-        function clearPlaceholder(input) {
-            input.setCustomValidity('');
-        }
-    </script>
+                    <script>
+                        function clearPlaceholder(input) {
+                            input.setCustomValidity('');
+                        }
+                    </script>
 
                     <!-- <div class="flex-sb-m w-full p-t-3 p-b-32">
                         <div class="contact100-form-checkbox">
@@ -133,7 +174,8 @@ if (isset($_POST) && isset($_POST['submit']))
                         </div>
                     </div> -->
                     <div class="container-login100-form-btn">
-                        <button class="login100-form-btn .bg-danger" id="oringi" style="background-color:#E7473C;" name="submit">
+                        <button class="login100-form-btn .bg-danger" id="oringi" style="background-color:#E7473C;"
+                            name="submit">
                             Register
                         </button>
 

@@ -42,6 +42,7 @@ if (isset($_POST) && isset($_POST['submit'])) {
 				$_SESSION['passwrd'] = $user['PASSWORD'];
 				$_SESSION['fullname'] = $user['FULL_NAME'];
 				$_SESSION['phonenumber'] = $user['PHONE_NUMBER'];
+				$_SESSION['admin'] = $user['IS_ADMIN'];
 				$ok = 1;
 				break;
 			}
